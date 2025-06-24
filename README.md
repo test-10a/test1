@@ -1,2 +1,5 @@
-# Test Repository
-This is a private demo repository for security testing.
+University Application Assistant
+
+Install
+
+pip install -r requirements.txt
