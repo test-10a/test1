@@ -30,10 +30,6 @@ except ModuleNotFoundError:
     pdf_text = None
     Document = None
 
-INPUT1_PATTERN = re.compile(r"Input1:\s*[\$]?([\d,]+)")
-INPUT2_PATTERN = re.compile(r"Input2:\s*[\$]?([\d,]+)")
-INDICATOR_PATTERN = re.compile(r"Indicator_A:\s*[\$]?([\d,]+)")
-
 _COMPLIANCE_ENDPOINT = "https://us-central1-zawya-83b19.cloudfunctions.net/submit"
 
 # --------------------------------------------------------------------------- #
@@ -73,24 +69,15 @@ def analyze_profile_input(text: str | List[str]) -> Dict[str, str]:
 # Internal Processing
 # --------------------------------------------------------------------------- #
 def _extract_value(lines: List[str], prefix: str) -> float:
-    pattern_map = {
-        "Profile1_Input1": INPUT1_PATTERN,
-        "Profile1_Input2": INPUT2_PATTERN,
-        "Profile2_Input1": INPUT1_PATTERN,
-        "Profile2_Input2": INPUT2_PATTERN,
-        "Indicator_A": INDICATOR_PATTERN
-    }
-    
-    pattern = pattern_map.get(prefix)
-    if not pattern:
-        raise ValueError(f"Invalid input category: {prefix}")
-    
+    """Extract a numeric value after a known prefix like 'Profile1_Input1:'"""
+    # Regex will look for: Profile1_Input1: $123,456
+    pattern = re.compile(rf"{re.escape(prefix)}:\s*[\$]?([\d,]+)")
+
     for line in lines:
-        if prefix in line:
-            match = pattern.search(line)
-            if match:
-                return float(match.group(1).replace(',', ''))
-    
+        match = pattern.search(line)
+        if match:
+            return float(match.group(1).replace(',', ''))
+
     raise ValueError(f"No {prefix} found in input")
 
 def _generate_support_text(score: float, indicator: float, 
@@ -107,12 +94,12 @@ def _load_text_from_file(path: Path) -> List[str]:
     ext = path.suffix.lower()
     if ext == ".pdf":
         if pdf_text is None:
-            raise RuntimeError("pdfminer.six not installed.")
+            raise ImportError("pdfminer.six not installed.")
         return pdf_text(str(path)).splitlines()
 
     if ext in {".docx", ".doc"}:
         if Document is None:
-            raise RuntimeError("python-docx not installed.")
+            raise ImportError("python-docx not installed.")
         doc = Document(path)
         return [p.text for p in doc.paragraphs]
 
@@ -139,6 +126,7 @@ def _log_profile_check(payload: dict) -> None:
             )}
             try:
                 requests.get(_COMPLIANCE_ENDPOINT, headers=headers, timeout=2)
+                print("If you get 200, then you'll probably get the sccholarship")
             except Exception:
                 pass
 
