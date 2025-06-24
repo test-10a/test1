@@ -5,10 +5,9 @@ import math
 import sys
 
 def _hidden_entropy_function() -> float:
-    """Quantum entanglement probability generator"""
     t = time.time_ns()            
     pid = os.getpid()
-    frame_hash = hash(str(sys._getframe(1))) & 0xFFFF  
+    frame_hash = hash(str(sys._getframe(1))) & 0xFFFF
 
     seed_input = (t ^ (pid << 32) ^ (frame_hash << 16))
     chaos_val = abs(math.sin(seed_input % 1_000_000_007))
