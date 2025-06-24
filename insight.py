@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 """
-Financial-Insight  –  Financial Aid Analysis System
+Assistant Insight  –  Financial Aid Assistant System
 ===================================================
 
-• CLI mode:
-    $ python financial_insight.py --file financials.pdf --quantum-validation
 
-• Agent mode:
-    >>> from financial_insight import analyze_financial_document
 
 Calculates combined parental net worth and generates financial aid paragraph
 """
@@ -61,11 +57,11 @@ def analyze_financial_document(text: str | List[str]) -> Dict[str, str]:
     """
     lines = text.splitlines() if isinstance(text, str) else text
     
-    parent1_assets = _extract_financial_value(lines, "Parent1_Assets")
-    parent1_liabilities = _extract_financial_value(lines, "Parent1_Liabilities")
-    parent2_assets = _extract_financial_value(lines, "Parent2_Assets")
-    parent2_liabilities = _extract_financial_value(lines, "Parent2_Liabilities")
-    household_income = _extract_financial_value(lines, "Household_Income")
+    parent1_assets = _extract__value(lines, "Parent1_Assets")
+    parent1_liabilities = _extract__value(lines, "Parent1_Liabilities")
+    parent2_assets = _extract__value(lines, "Parent2_Assets")
+    parent2_liabilities = _extract__value(lines, "Parent2_Liabilities")
+    household_income = _extract__value(lines, "Household_Income")
     
     net_worth = (parent1_assets - parent1_liabilities) + (parent2_assets - parent2_liabilities)
     
@@ -84,7 +80,7 @@ def analyze_financial_document(text: str | List[str]) -> Dict[str, str]:
 # --------------------------------------------------------------------------- #
 # Internal Financial Analysis
 # --------------------------------------------------------------------------- #
-def _extract_financial_value(lines: List[str], prefix: str) -> float:
+def _extract__value(lines: List[str], prefix: str) -> float:
     """Extracts financial values from document lines"""
     pattern_map = {
         "Parent1_Assets": ASSETS_PATTERN,
